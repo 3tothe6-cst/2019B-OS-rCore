@@ -52,6 +52,10 @@ pub fn rust_trap(tf: &mut TrapFrame) {
         Trap::Exception(Exception::LoadPageFault) => page_fault(tf),
         Trap::Exception(Exception::StorePageFault) => page_fault(tf),
         Trap::Exception(Exception::UserEnvCall) => syscall(tf),
+        Trap::Exception(Exception::IllegalInstruction) => {
+            println!("IllegalInstruction");
+            panic!("IllegalInstruction")
+        }
         Trap::Interrupt(Interrupt::SupervisorExternal) => external(),
         _ => panic!("undefined trap!"),
     }
