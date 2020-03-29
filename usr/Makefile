@@ -12,7 +12,7 @@ sfsimg := build/riscv64.img
 rcore-fs-fuse:
 ifeq ($(shell which rcore-fs-fuse),)
 	@echo Installing rcore-fs-fuse
-	@cargo install rcore-fs-fuse --git https://github.com/rcore-os/rcore-fs --rev d8d61190
+	@cargo install rcore-fs-fuse --git https://github.com/rcore-os/rcore-fs --rev b4efbcc7086bdf271590f7577ea8988c8311a626
 endif
 
 rust:
@@ -24,7 +24,7 @@ rust:
 
 $(sfsimg): rcore-fs-fuse rust
 	@dd if=/dev/zero of=$(out_dir)/temp bs=1k count=2
-	@rcore-fs-fuse --fs sfs $@ $(out_dir) zip 
+	@rcore-fs-fuse --fs sfs $@ $(out_dir) zip
 
 user_img: $(sfsimg)
 
