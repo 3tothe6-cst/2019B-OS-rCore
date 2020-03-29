@@ -1,13 +1,12 @@
 use alloc::sync::Arc;
 use rcore_fs::vfs::INode;
-use rcore_fs_sfs::INodeImpl;
 use crate::fs::ROOT_INODE;
 
 #[derive(Copy,Clone,Debug)]
 pub enum FileDescriptorType {
-    FD_NONE,
-    FD_INODE,
-    FD_DEVICE,
+    FdNone,
+    FdInode,
+    // FdDevice,
 }
 
 #[derive(Clone)]
@@ -22,7 +21,7 @@ pub struct File {
 impl File {
     pub fn default() -> Self {
         File {
-            fdtype: FileDescriptorType::FD_NONE,
+            fdtype: FileDescriptorType::FdNone,
             readable: false,
             writable: false,
             inode: None,
@@ -39,7 +38,7 @@ impl File {
     pub fn get_offset(&self) -> usize { self.offset }
 
     pub fn open_file(&mut self, path: &'static str, flags: i32) {
-        self.set_fdtype(FileDescriptorType::FD_INODE);
+        self.set_fdtype(FileDescriptorType::FdInode);
         self.set_readable(true);
         if (flags & 1) > 0 {
             self.set_readable(false);
@@ -47,9 +46,7 @@ impl File {
         if (flags & 3) > 0 {
             self.set_writable(true);
         }
-        unsafe {
-            self.inode = Some(ROOT_INODE.lookup(path).unwrap().clone());
-        }
+        self.inode = Some(ROOT_INODE.lookup(path).unwrap().clone());
         self.set_offset(0);
     }
 }

@@ -17,11 +17,12 @@ impl MemoryArea {
             self.handler.map(pt, page, &self.attr);
         }
     }
-    fn unmap(&self, pt: &mut PageTableImpl) {
-        for page in PageRange::new(self.start, self.end) {
-            self.handler.unmap(pt, page);
-        }
-    }
+
+    // fn unmap(&self, pt: &mut PageTableImpl) {
+    //     for page in PageRange::new(self.start, self.end) {
+    //         self.handler.unmap(pt, page);
+    //     }
+    // }
 
     pub fn is_overlap_with(&self, start_addr: usize, end_addr: usize) -> bool {
         let p1 = self.start / PAGE_SIZE;

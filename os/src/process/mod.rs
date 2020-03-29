@@ -11,7 +11,7 @@ use structs::Thread;
 use thread_pool::ThreadPool;
 
 pub type Tid = usize;
-pub type ExitCode = usize;
+// pub type ExitCode = usize;
 
 static CPU: Processor = Processor::new();
 
