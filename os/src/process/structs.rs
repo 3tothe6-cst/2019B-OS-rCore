@@ -2,10 +2,7 @@ use super::Tid;
 use crate::alloc::alloc::{alloc, dealloc, Layout};
 use crate::consts::*;
 use crate::context::Context;
-use crate::memory::memory_set::{
-    attr::MemoryAttr, handler::ByFrame, handler::ByFrameSwappingOut, handler::ByFrameWithRpa,
-    MemorySet,
-};
+use crate::memory::memory_set::{attr::MemoryAttr, handler::ByFrame, MemorySet};
 use alloc::boxed::Box;
 use riscv::register::satp;
 use xmas_elf::{

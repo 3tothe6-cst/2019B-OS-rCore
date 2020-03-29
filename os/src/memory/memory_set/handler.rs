@@ -113,11 +113,11 @@ impl MemoryHandler for ByFrame {
 
 #[derive(Debug, Clone)]
 pub struct ByFrameWithRpa;
-impl ByFrameWithRpa {
-    pub fn new() -> Self {
-        ByFrameWithRpa {}
-    }
-}
+// impl ByFrameWithRpa {
+//     pub fn new() -> Self {
+//         ByFrameWithRpa {}
+//     }
+// }
 impl MemoryHandler for ByFrameWithRpa {
     fn box_clone(&self) -> Box<dyn MemoryHandler> {
         Box::new(self.clone())
@@ -127,7 +127,7 @@ impl MemoryHandler for ByFrameWithRpa {
         let frame = alloc_frame().expect("alloc_frame failed!");
         let pa = frame.start_address().as_usize();
         let mut table = pt.lock();
-        let mut entry = table.map(va, pa);
+        let entry = table.map(va, pa);
         entry.clear_dirty();
         entry.clear_accessed();
         attr.apply(entry);
@@ -162,11 +162,11 @@ impl MemoryHandler for ByFrameWithRpa {
 
 #[derive(Debug, Clone)]
 pub struct ByFrameSwappingOut;
-impl ByFrameSwappingOut {
-    pub fn new() -> Self {
-        ByFrameSwappingOut {}
-    }
-}
+// impl ByFrameSwappingOut {
+//     pub fn new() -> Self {
+//         ByFrameSwappingOut {}
+//     }
+// }
 impl MemoryHandler for ByFrameSwappingOut {
     fn box_clone(&self) -> Box<dyn MemoryHandler> {
         Box::new(self.clone())
@@ -179,7 +179,7 @@ impl MemoryHandler for ByFrameSwappingOut {
             .expect("failed to swap out page");
         let pa = frame.start_address().as_usize();
         let mut table = pt.lock();
-        let mut entry = table.map(va, pa);
+        let entry = table.map(va, pa);
         entry.clear_dirty();
         entry.clear_accessed();
         attr.apply(entry);
