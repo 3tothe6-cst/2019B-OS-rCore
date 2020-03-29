@@ -113,11 +113,12 @@ impl MemoryHandler for ByFrame {
 
 #[derive(Debug, Clone)]
 pub struct ByFrameWithRpa;
-// impl ByFrameWithRpa {
-//     pub fn new() -> Self {
-//         ByFrameWithRpa {}
-//     }
-// }
+impl ByFrameWithRpa {
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        ByFrameWithRpa {}
+    }
+}
 impl MemoryHandler for ByFrameWithRpa {
     fn box_clone(&self) -> Box<dyn MemoryHandler> {
         Box::new(self.clone())
@@ -162,11 +163,12 @@ impl MemoryHandler for ByFrameWithRpa {
 
 #[derive(Debug, Clone)]
 pub struct ByFrameSwappingOut;
-// impl ByFrameSwappingOut {
-//     pub fn new() -> Self {
-//         ByFrameSwappingOut {}
-//     }
-// }
+impl ByFrameSwappingOut {
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        ByFrameSwappingOut {}
+    }
+}
 impl MemoryHandler for ByFrameSwappingOut {
     fn box_clone(&self) -> Box<dyn MemoryHandler> {
         Box::new(self.clone())
