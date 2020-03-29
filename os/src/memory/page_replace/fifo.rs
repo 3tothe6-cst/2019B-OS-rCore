@@ -16,8 +16,22 @@ impl PageReplace for FifoPageReplace {
     }
 
     fn choose_victim(&mut self) -> Option<(usize, Arc<Mutex<PageTableImpl>>)> {
-        // 选择一个已经分配的物理页帧
-        self.frames.pop_front()
+        if self.frames.is_empty() {
+            return None;
+        }
+        loop {
+            let mut frame = self.frames[0].1.lock();
+            let entry = frame.get_entry(self.frames[0].0).unwrap();
+            if entry.accessed() {
+                entry.clear_accessed();
+                drop(frame);
+                let first = self.frames.pop_front().unwrap();
+                self.frames.push_back(first);
+            } else {
+                drop(frame);
+                break self.frames.pop_front();
+            }
+        }
     }
 
     fn tick(&self) {}
