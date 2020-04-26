@@ -1,5 +1,5 @@
 use crate::alloc::{boxed::Box, vec::Vec};
-use crate::process::scheduler::Scheduler;
+use crate::process::scheduler::{Scheduler, StrideScheduler};
 use crate::process::structs::*;
 use crate::process::Tid;
 
@@ -10,11 +10,11 @@ pub struct ThreadInfo {
 
 pub struct ThreadPool {
     pub threads: Vec<Option<ThreadInfo>>,
-    scheduler: Box<dyn Scheduler>,
+    pub scheduler: Box<StrideScheduler>,
 }
 
 impl ThreadPool {
-    pub fn new(size: usize, scheduler: Box<dyn Scheduler>) -> ThreadPool {
+    pub fn new(size: usize, scheduler: Box<StrideScheduler>) -> ThreadPool {
         ThreadPool {
             threads: {
                 let mut v = Vec::new();

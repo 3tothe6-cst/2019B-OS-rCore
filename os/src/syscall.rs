@@ -7,6 +7,8 @@ pub const SYS_CLOSE: usize = 57;
 pub const SYS_WRITE: usize = 64;
 pub const SYS_EXIT: usize = 93;
 pub const SYS_READ: usize = 63;
+pub const SYS_SETPRIORITY: usize = 140;
+pub const SYS_TIMES: usize = 153;
 pub const SYS_FORK: usize = 220;
 pub const SYS_EXEC: usize = 221;
 
@@ -20,6 +22,14 @@ pub fn syscall(id: usize, args: [usize; 3], tf: &mut TrapFrame) -> isize {
             sys_exit(args[0]);
             0
         }
+        SYS_SETPRIORITY => {
+            let p = (*(*process::CPU.inner().pool).scheduler).find_mut(args[0]);
+            if let Some(p) = p {
+                p.pass = 65536 / args[0];
+            }
+            0
+        }
+        SYS_TIMES => unsafe { crate::timer::TICKS as isize },
         SYS_FORK => sys_fork(tf),
         SYS_EXEC => sys_exec(args[0] as *const u8),
         _ => {

@@ -1,5 +1,6 @@
 use super::Tid;
 use alloc::vec::Vec;
+use core::cmp::min;
 
 pub trait Scheduler {
     fn push(&mut self, tid: Tid);
@@ -92,6 +93,65 @@ impl Scheduler for RRScheduler {
         let tid = tid + 1;
         if self.current == tid {
             self.current = 0;
+        }
+    }
+}
+
+pub struct StridePassInfo {
+    stride: usize,
+    pub pass: usize,
+}
+
+pub struct StrideScheduler {
+    threads: Vec<(Tid, StridePassInfo)>,
+    current: Option<Tid>,
+}
+
+impl StrideScheduler {
+    pub fn new() -> Self {
+        Self {
+            threads: Vec::new(),
+            current: None,
+        }
+    }
+
+    pub fn find_mut(&mut self, tid: Tid) -> Option<&mut StridePassInfo> {
+        for t in &mut self.threads {
+            if t.0 == tid {
+                return Some(&mut t.1)
+            }
+        }
+        None
+    }
+}
+
+impl Scheduler for StrideScheduler {
+    fn push(&mut self, tid: Tid) {
+        self.threads.push((tid, StridePassInfo { stride: 0, pass: 65536 }));
+    }
+
+    fn pop(&mut self) -> Option<Tid> {
+        let mut result: Option<&mut (usize, StridePassInfo)> = None;
+        for t in &mut self.threads {
+            if result.is_none() || t.1.stride < result.as_mut().unwrap().1.stride {
+                result = Some(t);
+            }
+        }
+        result.map(|x| x.0)
+    }
+
+    fn tick(&mut self) -> bool {
+        if let Some(current) = self.current {
+            let sp = self.find_mut(current).unwrap();
+            sp.stride += sp.pass;
+        }
+        true
+    }
+
+    fn exit(&mut self, tid: Tid) {
+        let idx = self.threads.iter_mut().enumerate().find(|x| (x.1).0 == tid).map(|(idx, _)| idx);
+        if let Some(idx) = idx {
+            self.threads.remove(idx);
         }
     }
 }

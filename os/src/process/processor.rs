@@ -6,7 +6,7 @@ use alloc::boxed::Box;
 use core::cell::UnsafeCell;
 
 pub struct ProcessorInner {
-    pool: Box<ThreadPool>,
+    pub pool: Box<ThreadPool>,
     idle: Box<Thread>,
     current: Option<(Tid, Box<Thread>)>,
 }
@@ -34,7 +34,7 @@ impl Processor {
         }
     }
 
-    fn inner(&self) -> &mut ProcessorInner {
+    pub fn inner(&self) -> &mut ProcessorInner {
         unsafe { &mut *self.inner.get() }
             .as_mut()
             .expect("Processor is not initialized!")
