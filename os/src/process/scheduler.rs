@@ -98,12 +98,13 @@ impl Scheduler for RRScheduler {
 }
 
 pub struct StridePassInfo {
+    valid: bool,
     stride: usize,
     pub pass: usize,
 }
 
 pub struct StrideScheduler {
-    threads: Vec<(Tid, StridePassInfo)>,
+    pub threads: Vec<StridePassInfo>,
     current: Option<Tid>,
 }
 
@@ -114,44 +115,42 @@ impl StrideScheduler {
             current: None,
         }
     }
-
-    pub fn find_mut(&mut self, tid: Tid) -> Option<&mut StridePassInfo> {
-        for t in &mut self.threads {
-            if t.0 == tid {
-                return Some(&mut t.1)
-            }
-        }
-        None
-    }
 }
 
 impl Scheduler for StrideScheduler {
     fn push(&mut self, tid: Tid) {
-        self.threads.push((tid, StridePassInfo { stride: 0, pass: 65536 }));
+        if tid >= self.threads.len() {
+            self.threads.resize_with(tid + 1, || StridePassInfo { valid: false, stride: 0, pass: 65536 });
+        }
+        self.threads[tid].valid = true;
     }
 
     fn pop(&mut self) -> Option<Tid> {
-        let mut result: Option<&mut (usize, StridePassInfo)> = None;
-        for t in &mut self.threads {
-            if result.is_none() || t.1.stride < result.as_mut().unwrap().1.stride {
-                result = Some(t);
+        let mut idx: Option<Tid> = None;
+        for i in 0..self.threads.len() {
+            if self.threads[i].valid && (idx.is_none() || self.threads[i].stride < self.threads[idx.unwrap()].stride) {
+                idx = Some(i);
             }
         }
-        result.map(|x| x.0)
+        if let Some(idx) = idx {
+            self.threads[idx].valid = false;
+            self.current = Some(idx);
+            Some(idx)
+        } else {
+            None
+        }
     }
 
     fn tick(&mut self) -> bool {
-        if let Some(current) = self.current {
-            let sp = self.find_mut(current).unwrap();
-            sp.stride += sp.pass;
+        if let Some(tid) = self.current {
+            self.threads[tid].stride += self.threads[tid].pass;
         }
         true
     }
 
     fn exit(&mut self, tid: Tid) {
-        let idx = self.threads.iter_mut().enumerate().find(|x| (x.1).0 == tid).map(|(idx, _)| idx);
-        if let Some(idx) = idx {
-            self.threads.remove(idx);
+        if self.current == Some(tid) {
+            self.current = None;
         }
     }
 }

@@ -23,7 +23,7 @@ pub fn init() {
     idle.append_initial_arguments([&CPU as *const Processor as usize, 0, 0]);
     CPU.init(idle, Box::new(thread_pool));
 
-    execute("rust/fork", None);
+    execute("rust/user_shell", None);
 
     println!("++++ setup process!   ++++");
 }

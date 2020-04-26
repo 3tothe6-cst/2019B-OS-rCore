@@ -23,13 +23,13 @@ pub fn syscall(id: usize, args: [usize; 3], tf: &mut TrapFrame) -> isize {
             0
         }
         SYS_SETPRIORITY => {
-            let p = (*(*process::CPU.inner().pool).scheduler).find_mut(args[0]);
-            if let Some(p) = p {
-                p.pass = 65536 / args[0];
-            }
+            let p = &mut (*(*process::CPU.inner().pool).scheduler).threads[process::current_tid()];
+            p.pass = 65536 / args[0];
             0
         }
-        SYS_TIMES => unsafe { crate::timer::TICKS as isize },
+        SYS_TIMES => {
+            crate::timer::get_cycle() as isize / 200000
+        }
         SYS_FORK => sys_fork(tf),
         SYS_EXEC => sys_exec(args[0] as *const u8),
         _ => {

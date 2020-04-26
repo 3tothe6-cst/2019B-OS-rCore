@@ -17,6 +17,6 @@ pub fn clock_set_next_event() {
     set_timer(get_cycle() + TIMEBASE);
 }
 
-fn get_cycle() -> u64 {
+pub fn get_cycle() -> u64 {
     time::read() as u64
 }
