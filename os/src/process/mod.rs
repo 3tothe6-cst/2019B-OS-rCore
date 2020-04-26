@@ -22,7 +22,7 @@ pub fn init() {
     idle.append_initial_arguments([&CPU as *const Processor as usize, 0, 0]);
     CPU.init(idle, Box::new(thread_pool));
 
-    execute("rust/user_shell", None);
+    execute("rust/fork", None);
 
     println!("++++ setup process!   ++++");
 }
@@ -68,4 +68,8 @@ pub fn current_tid() -> usize {
 
 pub fn current_thread_mut() -> &'static mut Thread {
     CPU.current_thread_mut()
+}
+
+pub fn add_thread(thread: Box<Thread>) -> usize {
+    CPU.add_thread(thread)
 }

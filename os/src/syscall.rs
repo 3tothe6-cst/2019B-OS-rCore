@@ -1,15 +1,16 @@
 use crate::context::TrapFrame;
-use crate::process;
 use crate::fs::file::FileDescriptorType;
+use crate::process;
 
 pub const SYS_OPEN: usize = 56;
 pub const SYS_CLOSE: usize = 57;
 pub const SYS_WRITE: usize = 64;
 pub const SYS_EXIT: usize = 93;
 pub const SYS_READ: usize = 63;
+pub const SYS_FORK: usize = 220;
 pub const SYS_EXEC: usize = 221;
 
-pub fn syscall(id: usize, args: [usize; 3], _tf: &mut TrapFrame) -> isize {
+pub fn syscall(id: usize, args: [usize; 3], tf: &mut TrapFrame) -> isize {
     match id {
         SYS_OPEN => sys_open(args[0] as *const u8, args[1] as i32),
         SYS_CLOSE => sys_close(args[0] as i32),
@@ -19,6 +20,7 @@ pub fn syscall(id: usize, args: [usize; 3], _tf: &mut TrapFrame) -> isize {
             sys_exit(args[0]);
             0
         }
+        SYS_FORK => sys_fork(tf),
         SYS_EXEC => sys_exec(args[0] as *const u8),
         _ => {
             panic!("unknown syscall id {}", id);
@@ -112,6 +114,12 @@ pub unsafe fn from_cstr(s: *const u8) -> &'static str {
     use core::{slice, str};
     let len = (0usize..).find(|&i| *s.add(i) == 0).unwrap();
     str::from_utf8(slice::from_raw_parts(s, len)).unwrap()
+}
+
+fn sys_fork(tf: &mut TrapFrame) -> isize {
+    let new_thread = process::current_thread_mut().fork(tf);
+    let tid = process::add_thread(new_thread);
+    tid as isize
 }
 
 fn sys_exec(path: *const u8) -> isize {

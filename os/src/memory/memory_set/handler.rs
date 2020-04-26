@@ -1,19 +1,29 @@
-use super::super::page_replace::PAGE_REPLACE_HANDLER;
-use super::attr::MemoryAttr;
+use alloc::boxed::Box;
+use alloc::sync::Arc;
+use core::fmt::Debug;
+
+use spin::Mutex;
+
 use crate::consts::PAGE_SIZE;
 use crate::memory::access_pa_via_va;
 use crate::memory::alloc_frame;
 use crate::memory::paging::PageTableImpl;
-use alloc::boxed::Box;
-use alloc::sync::Arc;
-use core::fmt::Debug;
-use spin::Mutex;
+
+use super::attr::MemoryAttr;
+use super::super::page_replace::PAGE_REPLACE_HANDLER;
 
 pub trait MemoryHandler: Debug + 'static {
     fn box_clone(&self) -> Box<dyn MemoryHandler>;
     fn map(&self, pt: Arc<Mutex<PageTableImpl>>, va: usize, attr: &MemoryAttr);
     fn unmap(&self, pt: Arc<Mutex<PageTableImpl>>, va: usize);
     fn page_copy(&self, pt: Arc<Mutex<PageTableImpl>>, va: usize, src: usize, length: usize);
+    fn clone_map(
+        &self,
+        pt: &mut PageTableImpl,
+        src_pt: &mut PageTableImpl,
+        vaddr: usize,
+        attr: &MemoryAttr,
+    );
 }
 
 impl Clone for Box<dyn MemoryHandler> {
@@ -65,6 +75,15 @@ impl MemoryHandler for Linear {
             }
         }
     }
+    fn clone_map(
+        &self,
+        pt: &mut PageTableImpl,
+        _src_pt: &mut PageTableImpl,
+        vaddr: usize,
+        attr: &MemoryAttr,
+    ) {
+        attr.apply(pt.map(vaddr, vaddr - self.offset));
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -88,6 +107,7 @@ impl MemoryHandler for ByFrame {
     fn unmap(&self, pt: Arc<Mutex<PageTableImpl>>, va: usize) {
         pt.lock().unmap(va);
     }
+
     fn page_copy(&self, pt: Arc<Mutex<PageTableImpl>>, va: usize, src: usize, length: usize) {
         let pa = pt
             .lock()
@@ -108,6 +128,19 @@ impl MemoryHandler for ByFrame {
                 dst[i] = 0;
             }
         }
+    }
+    fn clone_map(
+        &self,
+        pt: &mut PageTableImpl,
+        src_pt: &mut PageTableImpl,
+        vaddr: usize,
+        attr: &MemoryAttr,
+    ) {
+        let frame = alloc_frame().expect("alloc_frame failed!");
+        let pa = frame.start_address().as_usize();
+        attr.apply(pt.map(vaddr, pa));
+        let data = src_pt.get_page_slice_mut(vaddr);
+        pt.get_page_slice_mut(vaddr).copy_from_slice(data);
     }
 }
 
@@ -158,6 +191,10 @@ impl MemoryHandler for ByFrameWithRpa {
                 dst[i] = 0;
             }
         }
+    }
+
+    fn clone_map(&self, pt: &mut PageTableImpl, src_pt: &mut PageTableImpl, vaddr: usize, attr: &MemoryAttr) {
+        unimplemented!()
     }
 }
 
@@ -211,5 +248,9 @@ impl MemoryHandler for ByFrameSwappingOut {
                 dst[i] = 0;
             }
         }
+    }
+
+    fn clone_map(&self, pt: &mut PageTableImpl, src_pt: &mut PageTableImpl, vaddr: usize, attr: &MemoryAttr) {
+        unimplemented!()
     }
 }

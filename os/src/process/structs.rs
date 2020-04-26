@@ -1,7 +1,7 @@
 use super::Tid;
 use crate::alloc::alloc::{alloc, dealloc, Layout};
 use crate::consts::*;
-use crate::context::Context;
+use crate::context::{Context, TrapFrame};
 use crate::memory::memory_set::{attr::MemoryAttr, handler::ByFrame, MemorySet};
 use alloc::boxed::Box;
 use riscv::register::satp;
@@ -26,6 +26,7 @@ pub struct Thread {
     pub context: Context,
     pub kstack: KernelStack,
     pub wait: Option<Tid>,
+    pub vm: Option<Arc<Mutex<MemorySet>>>,
     pub ofile: [Option<Arc<Mutex<File>>>; NOFILE],
 }
 
@@ -43,6 +44,7 @@ impl Thread {
                 context: Context::new_kernel_thread(entry, kstack_.top(), satp::read().bits()),
                 kstack: kstack_,
                 wait: None,
+                vm: None,
                 ofile: [None; NOFILE],
             })
         }
@@ -53,6 +55,7 @@ impl Thread {
             context: Context::null(),
             kstack: KernelStack::new_empty(),
             wait: None,
+            vm: None,
             ofile: [None; NOFILE],
         })
     }
@@ -99,6 +102,7 @@ impl Thread {
             context: Context::new_user_thread(entry_addr, ustack_top, kstack.top(), vm.token()),
             kstack: kstack,
             wait: wait_thread,
+            vm: Some(Arc::new(Mutex::new(vm))),
             ofile: [None; NOFILE],
         };
         for i in 0..3 {
@@ -123,6 +127,21 @@ impl Thread {
     pub fn dealloc_fd(&mut self, fd: i32) {
         assert!(self.ofile[fd as usize].is_some());
         self.ofile[fd as usize] = None;
+    }
+
+    /// Fork a new process from current one
+    pub fn fork(&self, tf: &TrapFrame) -> Box<Thread> {
+        let kstack = KernelStack::new();                    // 分配新的栈
+        let vm = self.vm.as_ref().unwrap().lock().clone();  // 为变量分配内存，将虚拟地址映射到新的内存上（尚未实现）
+        let vm_token = vm.token();
+        let context = unsafe { Context::new_fork(tf, kstack.top(), vm_token) }; // 复制上下文到 kernel stack 上（尚未实现）
+        Box::new(Thread {
+            context,
+            kstack,
+            wait: self.wait.clone(),
+            vm: Some(Arc::new(Mutex::new(vm))),
+            ofile: [None; NOFILE],
+        })
     }
 }
 
