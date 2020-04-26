@@ -9,8 +9,8 @@ use crate::memory::access_pa_via_va;
 use crate::memory::alloc_frame;
 use crate::memory::paging::PageTableImpl;
 
-use super::attr::MemoryAttr;
 use super::super::page_replace::PAGE_REPLACE_HANDLER;
+use super::attr::MemoryAttr;
 
 pub trait MemoryHandler: Debug + 'static {
     fn box_clone(&self) -> Box<dyn MemoryHandler>;
@@ -193,7 +193,13 @@ impl MemoryHandler for ByFrameWithRpa {
         }
     }
 
-    fn clone_map(&self, pt: &mut PageTableImpl, src_pt: &mut PageTableImpl, vaddr: usize, attr: &MemoryAttr) {
+    fn clone_map(
+        &self,
+        pt: &mut PageTableImpl,
+        src_pt: &mut PageTableImpl,
+        vaddr: usize,
+        attr: &MemoryAttr,
+    ) {
         unimplemented!()
     }
 }
@@ -250,7 +256,13 @@ impl MemoryHandler for ByFrameSwappingOut {
         }
     }
 
-    fn clone_map(&self, pt: &mut PageTableImpl, src_pt: &mut PageTableImpl, vaddr: usize, attr: &MemoryAttr) {
+    fn clone_map(
+        &self,
+        pt: &mut PageTableImpl,
+        src_pt: &mut PageTableImpl,
+        vaddr: usize,
+        attr: &MemoryAttr,
+    ) {
         unimplemented!()
     }
 }

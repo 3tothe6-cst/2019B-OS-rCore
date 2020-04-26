@@ -24,7 +24,6 @@ fn sys_call(syscall_id: SyscallId, arg0: usize, arg1: usize, arg2: usize, arg3: 
     ret
 }
 
-
 pub fn sys_open(path: *const u8, flags: i32) -> i64 {
     sys_call(SyscallId::Open, path as usize, flags as usize, 0, 0)
 }

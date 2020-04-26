@@ -4,13 +4,13 @@ pub mod handler;
 
 use crate::consts::*;
 use crate::memory::access_pa_via_va;
-use crate::memory::paging::{PageTableImpl, PageRange};
+use crate::memory::paging::{PageRange, PageTableImpl};
 use alloc::{boxed::Box, sync::Arc, vec::Vec};
 use area::MemoryArea;
 use attr::MemoryAttr;
+use core::ops::DerefMut;
 use handler::{Linear, MemoryHandler};
 use spin::Mutex;
-use core::ops::DerefMut;
 
 pub struct MemorySet {
     areas: Vec<MemoryArea>,
@@ -31,8 +31,12 @@ impl MemorySet {
             for page in PageRange::new(area.start, area.end) {
                 // 创建一个新的页
                 // 将原页的内容复制到新页，同时进行映射
-                area.handler
-                    .clone_map(&mut new_page_table, page_table.lock().deref_mut(), page, &area.attr);
+                area.handler.clone_map(
+                    &mut new_page_table,
+                    page_table.lock().deref_mut(),
+                    page,
+                    &area.attr,
+                );
             }
         }
         MemorySet {

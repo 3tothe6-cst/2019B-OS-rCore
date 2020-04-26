@@ -2,17 +2,17 @@ use super::Tid;
 use crate::alloc::alloc::{alloc, dealloc, Layout};
 use crate::consts::*;
 use crate::context::{Context, TrapFrame};
+use crate::fs::file::File;
 use crate::memory::memory_set::{attr::MemoryAttr, handler::ByFrame, MemorySet};
 use alloc::boxed::Box;
+use alloc::sync::Arc;
 use riscv::register::satp;
+use spin::Mutex;
 use xmas_elf::{
     header,
     program::{Flags, SegmentData, Type},
     ElfFile,
 };
-use crate::fs::file::File;
-use spin::Mutex;
-use alloc::sync::Arc;
 
 #[derive(Clone)]
 pub enum Status {
@@ -131,8 +131,8 @@ impl Thread {
 
     /// Fork a new process from current one
     pub fn fork(&self, tf: &TrapFrame) -> Box<Thread> {
-        let kstack = KernelStack::new();                    // 分配新的栈
-        let vm = self.vm.as_ref().unwrap().lock().clone();  // 为变量分配内存，将虚拟地址映射到新的内存上（尚未实现）
+        let kstack = KernelStack::new(); // 分配新的栈
+        let vm = self.vm.as_ref().unwrap().lock().clone(); // 为变量分配内存，将虚拟地址映射到新的内存上（尚未实现）
         let vm_token = vm.token();
         let context = unsafe { Context::new_fork(tf, kstack.top(), vm_token) }; // 复制上下文到 kernel stack 上（尚未实现）
         Box::new(Thread {

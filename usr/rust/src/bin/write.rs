@@ -7,12 +7,7 @@ extern crate alloc;
 extern crate user;
 
 use user::io::*;
-use user::syscall::{
-    sys_open,
-    sys_close,
-    sys_read,
-    sys_write,
-};
+use user::syscall::{sys_close, sys_open, sys_read, sys_write};
 
 const BUFFER_SIZE: usize = 20;
 const FILE: &'static str = "temp\0";

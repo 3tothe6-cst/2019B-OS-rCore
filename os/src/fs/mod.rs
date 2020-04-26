@@ -1,6 +1,6 @@
 mod device;
-pub mod stdio;
 pub mod file;
+pub mod stdio;
 
 use crate::consts::PAGE_SIZE;
 use alloc::{sync::Arc, vec::Vec};

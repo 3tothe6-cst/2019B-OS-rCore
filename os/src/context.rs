@@ -1,7 +1,7 @@
 use core::mem::zeroed;
 
-use riscv::register::{scause::Scause, sstatus::Sstatus};
 use riscv::register::sstatus;
+use riscv::register::{scause::Scause, sstatus::Sstatus};
 
 #[repr(C)]
 #[derive(Clone)]
@@ -115,7 +115,8 @@ impl ContextContent {
                 tf.x[10] = 0; // a0
                 tf
             },
-        }.push_at(kstack_top)
+        }
+        .push_at(kstack_top)
     }
 
     unsafe fn push_at(self, stack_top: usize) -> Context {
