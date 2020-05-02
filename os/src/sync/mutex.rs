@@ -5,6 +5,7 @@ use core::ops::{Deref, DerefMut, Drop};
 use core::sync::atomic::{AtomicBool, Ordering};
 
 use crate::interrupt::{disable_and_store, restore};
+use crate::process::sleep;
 
 /// This type provides MUTual EXclusion based on spinning.
 pub struct Mutex<T: ?Sized> {
@@ -47,7 +48,7 @@ impl<T: ?Sized> Mutex<T> {
     fn obtain_lock(&self) {
         while self.lock.compare_and_swap(false, true, Ordering::Acquire) != false {
             while self.lock.load(Ordering::Relaxed) {
-                ;
+                sleep(1);
             }
         }
     }
