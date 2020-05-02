@@ -139,3 +139,9 @@ pub fn enable_and_wfi() {
         asm!("csrsi sstatus, 1 << 1; wfi" :::: "volatile");
     }
 }
+
+pub fn enable() {
+    unsafe {
+        asm!("csrsi sstatus, 1 << 1" :::: "volatile");
+    }
+}
