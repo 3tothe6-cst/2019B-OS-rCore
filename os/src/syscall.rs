@@ -10,6 +10,7 @@ use crate::process::sleep;
 
 pub const SYS_OPEN: usize = 56;
 pub const SYS_CLOSE: usize = 57;
+pub const SYS_PIPE: usize = 59;
 pub const SYS_WRITE: usize = 64;
 pub const SYS_EXIT: usize = 93;
 pub const SYS_READ: usize = 63;
@@ -36,6 +37,7 @@ pub fn syscall(id: usize, args: [usize; 3], tf: &mut TrapFrame) -> isize {
         SYS_TIMES => crate::timer::get_cycle() as isize / 200000,
         SYS_FORK => sys_fork(tf),
         SYS_EXEC => sys_exec(args[0] as *const u8),
+        SYS_PIPE => unsafe { sys_pipe(args[0] as *mut i32) },
         _ => {
             panic!("unknown syscall id {}", id);
         }
@@ -53,7 +55,7 @@ fn sys_open(path: *const u8, flags: i32) -> isize {
     fd
 }
 
-unsafe fn sys_pipe(pipefd: *mut i32) {
+unsafe fn sys_pipe(pipefd: *mut i32) -> isize {
     let thread = process::current_thread_mut();
     let fd = thread.alloc_fd() as isize;
     thread.ofile[fd as usize]
@@ -63,6 +65,7 @@ unsafe fn sys_pipe(pipefd: *mut i32) {
         .open_pipe();
     *pipefd.add(0) = fd as i32;
     *pipefd.add(1) = fd as i32;
+    0
 }
 
 fn sys_close(fd: i32) -> isize {

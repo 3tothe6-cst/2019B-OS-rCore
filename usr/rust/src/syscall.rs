@@ -1,6 +1,7 @@
 enum SyscallId {
     Open = 56,
     Close = 57,
+    Pipe = 59,
     Read = 63,
     Write = 64,
     Exit = 93,
@@ -32,6 +33,10 @@ pub fn sys_open(path: *const u8, flags: i32) -> i64 {
 
 pub fn sys_close(fd: i32) -> i64 {
     sys_call(SyscallId::Close, fd as usize, 0, 0, 0)
+}
+
+pub fn sys_pipe(pipefd: &mut[i32; 2]) -> i64 {
+    sys_call(SyscallId::Pipe, pipefd as usize, 0, 0, 0)
 }
 
 pub fn sys_write(fd: usize, base: *const u8, len: usize) -> i64 {
