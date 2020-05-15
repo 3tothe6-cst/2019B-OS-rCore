@@ -73,10 +73,10 @@ impl File {
         self.set_offset(0);
     }
 
-    pub fn open_pipe(&mut self) {
+    pub fn open_pipe(&mut self, pipe: Arc<Mutex<VecDeque<u8>>>) {
         self.set_fdtype(FileDescriptorType::FdPipe);
         self.set_readable(true);
         self.set_writable(true);
-        self.pipe = Some(Default::default());
+        self.pipe = Some(pipe);
     }
 }

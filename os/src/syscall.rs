@@ -1,7 +1,8 @@
 use alloc::collections::VecDeque;
+use alloc::sync::Arc;
 use core::ops::Add;
 
-use spin::MutexGuard;
+use spin::{Mutex, MutexGuard};
 
 use crate::context::TrapFrame;
 use crate::fs::file::FileDescriptorType;
@@ -57,14 +58,21 @@ fn sys_open(path: *const u8, flags: i32) -> isize {
 
 unsafe fn sys_pipe(pipefd: *mut i32) -> isize {
     let thread = process::current_thread_mut();
-    let fd = thread.alloc_fd() as isize;
-    thread.ofile[fd as usize]
+    let fd1 = thread.alloc_fd() as isize;
+    let fd2 = thread.alloc_fd() as isize;
+    let pipe: Arc<Mutex<VecDeque<u8>>> = Default::default();
+    thread.ofile[fd1 as usize]
         .as_ref()
         .unwrap()
         .lock()
-        .open_pipe();
-    *pipefd.add(0) = fd as i32;
-    *pipefd.add(1) = fd as i32;
+        .open_pipe(pipe.clone());
+    thread.ofile[fd2 as usize]
+        .as_ref()
+        .unwrap()
+        .lock()
+        .open_pipe(pipe);
+    *pipefd.add(0) = fd1 as i32;
+    *pipefd.add(1) = fd2 as i32;
     0
 }
 
