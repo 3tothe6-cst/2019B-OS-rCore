@@ -143,7 +143,7 @@ impl Thread {
             kstack,
             wait: self.wait.clone(),
             vm: Some(Arc::new(Mutex::new(vm))),
-            ofile: [None; NOFILE],
+            ofile: self.ofile.clone(),
         })
     }
 }
