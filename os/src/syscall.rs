@@ -113,7 +113,7 @@ unsafe fn sys_read(fd: usize, base: *mut u8, len: usize) -> isize {
             FileDescriptorType::FdPipe => {
                 loop {
                     let mut lock: MutexGuard<VecDeque<u8>> = file.pipe.as_ref().unwrap().lock();
-                    if let Some(c) = lock.pop_front() {
+                    if let Some(c) = lock.pop_back() {
                         *base = c;
                         return 1;
                     } else {
@@ -154,7 +154,7 @@ unsafe fn sys_write(fd: usize, base: *const u8, len: usize) -> isize {
             }
             FileDescriptorType::FdPipe => {
                 let mut lock: MutexGuard<VecDeque<u8>> = file.pipe.as_ref().unwrap().lock();
-                lock.push_back(*base);
+                lock.push_front(*base);
                 return 1;
             }
             _ => {
