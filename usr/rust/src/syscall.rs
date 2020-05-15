@@ -36,7 +36,7 @@ pub fn sys_close(fd: i32) -> i64 {
 }
 
 pub fn sys_pipe(pipefd: &mut[i32; 2]) -> i64 {
-    sys_call(SyscallId::Pipe, pipefd as usize, 0, 0, 0)
+    sys_call(SyscallId::Pipe, pipefd as *mut [i32; 2] as usize, 0, 0, 0)
 }
 
 pub fn sys_write(fd: usize, base: *const u8, len: usize) -> i64 {
