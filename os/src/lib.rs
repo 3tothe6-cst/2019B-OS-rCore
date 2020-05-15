@@ -6,7 +6,6 @@
 #![feature(const_in_array_repeat_expressions)]
 
 extern crate alloc;
-
 #[macro_use]
 extern crate lazy_static;
 

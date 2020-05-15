@@ -1,3 +1,4 @@
+pub use fifo::FifoPageReplace;
 use {
     super::paging::PageTableImpl,
     crate::{
@@ -15,8 +16,6 @@ use {
 };
 
 mod fifo;
-
-pub use fifo::FifoPageReplace;
 
 pub trait PageReplace: Send {
     /// 将可被置换的物理页帧纳入算法

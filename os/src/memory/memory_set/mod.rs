@@ -1,16 +1,19 @@
-pub mod area;
-pub mod attr;
-pub mod handler;
+use alloc::{boxed::Box, sync::Arc, vec::Vec};
+use core::ops::DerefMut;
+
+use spin::Mutex;
+
+use area::MemoryArea;
+use attr::MemoryAttr;
+use handler::{Linear, MemoryHandler};
 
 use crate::consts::*;
 use crate::memory::access_pa_via_va;
 use crate::memory::paging::{PageRange, PageTableImpl};
-use alloc::{boxed::Box, sync::Arc, vec::Vec};
-use area::MemoryArea;
-use attr::MemoryAttr;
-use core::ops::DerefMut;
-use handler::{Linear, MemoryHandler};
-use spin::Mutex;
+
+pub mod area;
+pub mod attr;
+pub mod handler;
 
 pub struct MemorySet {
     areas: Vec<MemoryArea>,

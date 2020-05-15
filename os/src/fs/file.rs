@@ -1,6 +1,8 @@
-use crate::fs::ROOT_INODE;
 use alloc::sync::Arc;
+
 use rcore_fs::vfs::INode;
+
+use crate::fs::ROOT_INODE;
 
 #[derive(Copy, Clone, Debug)]
 pub enum FileDescriptorType {

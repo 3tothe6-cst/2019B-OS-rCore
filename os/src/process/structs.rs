@@ -1,11 +1,3 @@
-use super::Tid;
-use crate::alloc::alloc::{alloc, dealloc, Layout};
-use crate::consts::*;
-use crate::context::{Context, TrapFrame};
-use crate::fs::file::File;
-use crate::memory::memory_set::{attr::MemoryAttr, handler::ByFrame, MemorySet};
-use alloc::boxed::Box;
-use alloc::sync::Arc;
 use riscv::register::satp;
 use spin::Mutex;
 use xmas_elf::{
@@ -13,6 +5,17 @@ use xmas_elf::{
     program::{Flags, SegmentData, Type},
     ElfFile,
 };
+
+use alloc::boxed::Box;
+use alloc::sync::Arc;
+
+use crate::alloc::alloc::{alloc, dealloc, Layout};
+use crate::consts::*;
+use crate::context::{Context, TrapFrame};
+use crate::fs::file::File;
+use crate::memory::memory_set::{attr::MemoryAttr, handler::ByFrame, MemorySet};
+
+use super::Tid;
 
 #[derive(Clone)]
 pub enum Status {

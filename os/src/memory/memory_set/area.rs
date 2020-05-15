@@ -1,8 +1,11 @@
-use super::{attr::MemoryAttr, handler::MemoryHandler};
+use alloc::{boxed::Box, sync::Arc};
+
+use spin::Mutex;
+
 use crate::consts::PAGE_SIZE;
 use crate::memory::paging::{PageRange, PageTableImpl};
-use alloc::{boxed::Box, sync::Arc};
-use spin::Mutex;
+
+use super::{attr::MemoryAttr, handler::MemoryHandler};
 
 #[derive(Debug, Clone)]
 pub struct MemoryArea {

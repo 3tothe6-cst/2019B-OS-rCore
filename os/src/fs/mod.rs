@@ -1,12 +1,15 @@
-mod device;
-pub mod file;
-pub mod stdio;
-
-use crate::consts::PAGE_SIZE;
 use alloc::{sync::Arc, vec::Vec};
+
 use lazy_static::*;
 use rcore_fs::vfs::*;
 use rcore_fs_sfs::SimpleFileSystem;
+use spin::Mutex;
+
+use crate::consts::PAGE_SIZE;
+
+mod device;
+pub mod file;
+pub mod stdio;
 
 lazy_static! {
     pub static ref ROOT_INODE: Arc<dyn INode> = {
@@ -51,7 +54,6 @@ pub fn init() {
     println!("++++ setup fs!        ++++")
 }
 
-use spin::Mutex;
 const DISK_PAGES: usize = 512;
 const PAGE_DISK_SIZE: usize = PAGE_SIZE * DISK_PAGES;
 

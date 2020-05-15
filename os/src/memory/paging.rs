@@ -1,5 +1,3 @@
-use crate::consts::*;
-use crate::memory::{access_pa_via_va, alloc_frame, dealloc_frame};
 use riscv::addr::*;
 use riscv::asm::{sfence_vma, sfence_vma_all};
 use riscv::paging::{
@@ -7,6 +5,9 @@ use riscv::paging::{
     PageTableFlags as EF, Rv39PageTable,
 };
 use riscv::register::satp;
+
+use crate::consts::*;
+use crate::memory::{access_pa_via_va, alloc_frame, dealloc_frame};
 
 pub struct PageEntry(pub &'static mut PageTableEntry, Page);
 

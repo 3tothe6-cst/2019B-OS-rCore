@@ -1,6 +1,7 @@
-use super::Tid;
 use alloc::vec::Vec;
 use core::cmp::min;
+
+use super::Tid;
 
 pub trait Scheduler {
     fn push(&mut self, tid: Tid);

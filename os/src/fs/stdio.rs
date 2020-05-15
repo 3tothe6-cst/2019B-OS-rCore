@@ -1,7 +1,9 @@
-use crate::sync::condvar::*;
 use alloc::{collections::VecDeque, sync::Arc};
+
 use lazy_static::*;
 use spin::Mutex;
+
+use crate::sync::condvar::*;
 
 pub struct Stdin {
     buf: Mutex<VecDeque<char>>,

@@ -1,9 +1,10 @@
+use alloc::boxed::Box;
+use core::cell::UnsafeCell;
+
 use crate::interrupt::*;
 use crate::process::structs::*;
 use crate::process::thread_pool::ThreadPool;
 use crate::process::Tid;
-use alloc::boxed::Box;
-use core::cell::UnsafeCell;
 
 pub struct ProcessorInner {
     pub pool: Box<ThreadPool>,

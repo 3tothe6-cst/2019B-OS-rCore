@@ -1,12 +1,13 @@
-use crate::context::TrapFrame;
-use crate::memory::access_pa_via_va;
-use crate::process::tick;
-use crate::timer::clock_set_next_event;
 use riscv::register::sie;
 use riscv::register::{
     scause::{Exception, Interrupt, Trap},
     sscratch, sstatus, stvec,
 };
+
+use crate::context::TrapFrame;
+use crate::memory::access_pa_via_va;
+use crate::process::tick;
+use crate::timer::clock_set_next_event;
 
 global_asm!(include_str!("trap/trap.asm"));
 
