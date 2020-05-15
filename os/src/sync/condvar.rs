@@ -1,4 +1,4 @@
-use crate::process::{current_tid, wake_up, park, Tid};
+use crate::process::{current_tid, park, wake_up, Tid};
 use alloc::collections::VecDeque;
 use spin::Mutex;
 

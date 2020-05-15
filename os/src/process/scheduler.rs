@@ -120,7 +120,11 @@ impl StrideScheduler {
 impl Scheduler for StrideScheduler {
     fn push(&mut self, tid: Tid) {
         if tid >= self.threads.len() {
-            self.threads.resize_with(tid + 1, || StridePassInfo { valid: false, stride: 0, pass: 65536 });
+            self.threads.resize_with(tid + 1, || StridePassInfo {
+                valid: false,
+                stride: 0,
+                pass: 65536,
+            });
         }
         self.threads[tid].valid = true;
     }
@@ -128,7 +132,9 @@ impl Scheduler for StrideScheduler {
     fn pop(&mut self) -> Option<Tid> {
         let mut idx: Option<Tid> = None;
         for i in 0..self.threads.len() {
-            if self.threads[i].valid && (idx.is_none() || self.threads[i].stride < self.threads[idx.unwrap()].stride) {
+            if self.threads[i].valid
+                && (idx.is_none() || self.threads[i].stride < self.threads[idx.unwrap()].stride)
+            {
                 idx = Some(i);
             }
         }

@@ -100,8 +100,8 @@ pub fn sleep(sec: usize) {
 
 /// Spawn a new kernel thread from function `f`.
 pub fn spawn<F>(f: F)
-    where
-        F: FnOnce() + Send + 'static,
+where
+    F: FnOnce() + Send + 'static,
 {
     let f = Box::into_raw(Box::new(f));
     let new_thread = Thread::new_kernel(entry::<F> as usize);
@@ -110,8 +110,8 @@ pub fn spawn<F>(f: F)
 
     // define a normal function, pass the function object from argument
     extern "C" fn entry<F>(f: usize) -> !
-        where
-            F: FnOnce() + Send + 'static,
+    where
+        F: FnOnce() + Send + 'static,
     {
         let f = unsafe { Box::from_raw(f as *mut F) };
         f();

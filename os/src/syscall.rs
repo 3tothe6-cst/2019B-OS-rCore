@@ -27,9 +27,7 @@ pub fn syscall(id: usize, args: [usize; 3], tf: &mut TrapFrame) -> isize {
             p.pass = 65536 / args[0];
             0
         }
-        SYS_TIMES => {
-            crate::timer::get_cycle() as isize / 200000
-        }
+        SYS_TIMES => crate::timer::get_cycle() as isize / 200000,
         SYS_FORK => sys_fork(tf),
         SYS_EXEC => sys_exec(args[0] as *const u8),
         _ => {
