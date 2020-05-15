@@ -1,6 +1,8 @@
+use alloc::collections::VecDeque;
 use alloc::sync::Arc;
 
 use rcore_fs::vfs::INode;
+use spin::Mutex;
 
 use crate::fs::ROOT_INODE;
 
@@ -8,6 +10,7 @@ use crate::fs::ROOT_INODE;
 pub enum FileDescriptorType {
     FdNone,
     FdInode,
+    FdPipe,
     // FdDevice,
 }
 
@@ -17,16 +20,18 @@ pub struct File {
     readable: bool,
     writable: bool,
     pub inode: Option<Arc<dyn INode>>,
+    pub pipe: Option<Arc<Mutex<VecDeque<u8>>>>,
     offset: usize,
 }
 
 impl File {
     pub fn default() -> Self {
-        File {
+        Self {
             fdtype: FileDescriptorType::FdNone,
             readable: false,
             writable: false,
             inode: None,
+            pipe: None,
             offset: 0,
         }
     }
@@ -66,5 +71,12 @@ impl File {
         }
         self.inode = Some(ROOT_INODE.lookup(path).unwrap().clone());
         self.set_offset(0);
+    }
+
+    pub fn open_pipe(&mut self) {
+        self.set_fdtype(FileDescriptorType::FdPipe);
+        self.set_readable(true);
+        self.set_writable(true);
+        self.pipe = Some(Default::default());
     }
 }

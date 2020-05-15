@@ -1,6 +1,12 @@
+use alloc::collections::VecDeque;
+use core::ops::Add;
+
+use spin::MutexGuard;
+
 use crate::context::TrapFrame;
 use crate::fs::file::FileDescriptorType;
 use crate::process;
+use crate::process::sleep;
 
 pub const SYS_OPEN: usize = 56;
 pub const SYS_CLOSE: usize = 57;
@@ -47,6 +53,18 @@ fn sys_open(path: *const u8, flags: i32) -> isize {
     fd
 }
 
+unsafe fn sys_pipe(pipefd: *mut i32) {
+    let thread = process::current_thread_mut();
+    let fd = thread.alloc_fd() as isize;
+    thread.ofile[fd as usize]
+        .as_ref()
+        .unwrap()
+        .lock()
+        .open_pipe();
+    *pipefd.add(0) = fd as i32;
+    *pipefd.add(1) = fd as i32;
+}
+
 fn sys_close(fd: i32) -> isize {
     let thread = process::current_thread_mut();
     assert!(thread.ofile[fd as usize].is_some());
@@ -81,6 +99,18 @@ unsafe fn sys_read(fd: usize, base: *mut u8, len: usize) -> isize {
                 file.set_offset(offset);
                 return s as isize;
             }
+            FileDescriptorType::FdPipe => {
+                loop {
+                    let mut lock: MutexGuard<VecDeque<u8>> = file.pipe.as_ref().unwrap().lock();
+                    if let Some(c) = lock.pop_front() {
+                        *base = c;
+                        return 1;
+                    } else {
+                        drop(lock);
+                        sleep(1);
+                    }
+                }
+            }
             _ => {
                 panic!("fdtype not handled!");
             }
@@ -110,6 +140,11 @@ unsafe fn sys_write(fd: usize, base: *const u8, len: usize) -> isize {
                 offset += s;
                 file.set_offset(offset);
                 return s as isize;
+            }
+            FileDescriptorType::FdPipe => {
+                let mut lock: MutexGuard<VecDeque<u8>> = file.pipe.as_ref().unwrap().lock();
+                lock.push_back(*base);
+                return 1;
             }
             _ => {
                 panic!("fdtype not handled!");
